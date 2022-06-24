@@ -21,7 +21,8 @@ const forecast = (lat, long, callback) => {
           " degress out." +
           " It feels like " +
           body.current.feelslike +
-          " degress out."
+          " degress out. Last Observation time is " +
+          body.current.observation_time
       );
     }
   });
