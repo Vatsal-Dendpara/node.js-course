@@ -74,5 +74,5 @@ app.get("/repo", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("server is running");
+  console.log("server is running.");
 });
