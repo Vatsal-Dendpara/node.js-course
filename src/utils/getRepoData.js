@@ -1,6 +1,6 @@
 const request = require("postman-request");
 let url = "";
-const getRepoData = (lang, forks = 0, stargazers_count = 2000, callback) => {
+const getRepoData = (lang, stargazers_count, forks = 0, callback) => {
   if (lang == null) {
     url = "https://api.github.com/search/repositories?q=is:public";
   } else if (forks == null) {
