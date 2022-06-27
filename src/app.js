@@ -53,7 +53,7 @@ app.get("/repo", (req, res) => {
       // CSV conversion using csv-parser module
       const createCSVWriter = csvwriter.createObjectCsvWriter;
       const csvWriter = createCSVWriter({
-        path: "/csvData/data.csv",
+        path: "./csvData/data.csv",
         header: [
           { id: "name", title: "NAME" },
           { id: "description", title: "DESCRIPTION" },
