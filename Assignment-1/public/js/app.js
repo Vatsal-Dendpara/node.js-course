@@ -21,5 +21,6 @@ submit.addEventListener("click", (e) => {
     .then((d) => {
       output.innerHTML = "File Downloaded";
       console.log(d);
-    });
+    })
+    .catch((err) => (output.innerHTML = err));
 });
