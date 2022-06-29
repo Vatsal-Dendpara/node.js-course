@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Vatsal-Dendpara/node.js-course/issues"
   },
-  "homepage": "https://github.com/Vatsal-Dendpara/node.js-course#readme"
+  "homepage": "https://github.com/Vatsal-Dendpara/node.js-course#readme",
+  "dependencies": {
+    "postman-request": "^2.88.1-postman.31"
+  }
 }
