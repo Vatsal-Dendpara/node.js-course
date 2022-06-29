@@ -65,9 +65,12 @@ app.get("/repo", (req, res) => {
         ],
       });
 
-      csvWriter.writeRecords(fileData).then(() => {
-        console.log("done");
-      });
+      csvWriter
+        .writeRecords(fileData)
+        .then(() => {
+          console.log("done");
+        })
+        .catch((e) => res.send(e));
     }
   );
 });
