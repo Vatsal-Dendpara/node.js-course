@@ -1,4 +1,5 @@
-// -> Async basics.
+
+// -> Async basics
 
 // console.log("start");
 
