@@ -1,3 +1,4 @@
+const request = require("postman-request");
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
@@ -52,7 +53,7 @@ app.get("/repo", (req, res) => {
       // CSV conversion using csv-parser module
       const createCSVWriter = csvwriter.createObjectCsvWriter;
       const csvWriter = createCSVWriter({
-        path: path.join(__dirname, "../csvData/data.csv"),
+        path: "./csvData/data.csv",
         header: [
           { id: "name", title: "NAME" },
           { id: "description", title: "DESCRIPTION" },
@@ -65,12 +66,9 @@ app.get("/repo", (req, res) => {
         ],
       });
 
-      csvWriter
-        .writeRecords(fileData)
-        .then(() => {
-          console.log("done");
-        })
-        .catch((e) => res.send(e));
+      csvWriter.writeRecords(fileData).then(() => {
+        console.log("done");
+      });
     }
   );
 });
