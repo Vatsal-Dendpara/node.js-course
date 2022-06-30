@@ -90,4 +90,17 @@ router.delete("/users/:id", async (req, res) => {
   }
 });
 
+//Endpoint 6 - to authorize user
+
+router.post("/users/login", async (req, res) => {
+  try {
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.password
+    );
+    res.send(user);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
 module.exports = router;
