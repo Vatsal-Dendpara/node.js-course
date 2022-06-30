@@ -30,23 +30,23 @@ router.get("/users/me", auth, async (req, res) => {
 });
 
 //Endpoint 3 - to get user by its id.
-router.get("/users/:id", async (req, res) => {
-  const _id = req.params.id;
+// router.get("/users/:id", async (req, res) => {
+//   const _id = req.params.id;
 
-  try {
-    const user = await User.findById(_id);
-    if (!user) {
-      return res.status(404).send();
-    }
+//   try {
+//     const user = await User.findById(_id);
+//     if (!user) {
+//       return res.status(404).send();
+//     }
 
-    res.send(user);
-  } catch (e) {
-    res.status(500).send(e);
-  }
-});
+//     res.send(user);
+//   } catch (e) {
+//     res.status(500).send(e);
+//   }
+// });
 
 //Endpoint 4 - to update user by its id.
-router.patch("/users/:id", async (req, res) => {
+router.patch("/users/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "email", "password", "age"];
   const isValidOp = updates.every((update) => {
@@ -57,7 +57,7 @@ router.patch("/users/:id", async (req, res) => {
     return res.status(404).send({ error: "invalid updates" });
   }
   try {
-    const user = await User.findById(req.params.id);
+    const user = req.user;
 
     updates.forEach((update) => {
       user[update] = req.body[update];
@@ -80,15 +80,17 @@ router.patch("/users/:id", async (req, res) => {
 
 //Endpoint 5 - to delete user by its id.
 
-router.delete("/users/:id", async (req, res) => {
+router.delete("/users/me", auth, async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    // const user = await User.findByIdAndDelete(req.params.id);
 
-    if (!user) {
-      return res.status(404).send();
-    }
+    // if (!user) {
+    //   return res.status(404).send();
+    // }
 
-    res.send(user);
+    req.user.remove();
+
+    res.send(req.user);
   } catch (e) {
     res.status(500).send(e);
   }
@@ -106,6 +108,33 @@ router.post("/users/login", async (req, res) => {
     res.send({ user, token });
   } catch (e) {
     res.status(400).send(e);
+  }
+});
+
+//Endpoint 7 - for logout user
+
+router.post("/users/logout", auth, async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token;
+    });
+
+    await req.user.save();
+
+    res.send();
+  } catch (e) {
+    res.status(500).send();
+  }
+});
+
+//endpoint 8 - to delete all the session of user
+router.post("/users/logoutAll", auth, async (req, res) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+    res.send();
+  } catch (e) {
+    res.send(500).send();
   }
 });
 module.exports = router;
