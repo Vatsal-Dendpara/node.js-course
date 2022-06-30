@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Tasks = require("../models/tasks");
 mongoose.connect("mongodb://127.0.0.1:27017/task-manager-api");
 
 const userSchema = new mongoose.Schema({
@@ -51,6 +52,14 @@ const userSchema = new mongoose.Schema({
     },
   ],
 });
+
+//virtual schema for users task
+userSchema.virtual("task", {
+  ref: "Tasks",
+  localField: "_id",
+  foreignField: "user_id",
+});
+
 //hide important details from user
 
 userSchema.methods.toJSON = function () {
@@ -97,6 +106,14 @@ userSchema.pre("save", async function (next) {
   }
 
   next();
+});
+
+//middleware for when a user delete then automatically remove all his tasks.
+
+userSchema.pre("remove", async function (next) {
+  const user = this;
+
+  await Tasks.deleteMany({ user_id: user._id });
 });
 //User Model
 const User = mongoose.model("User", userSchema);

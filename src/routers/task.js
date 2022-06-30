@@ -1,11 +1,15 @@
 const express = require("express");
 const Tasks = require("../models/tasks");
 const router = new express.Router();
+const auth = require("../middleware/auth");
 
 //Endpoint 1 - to add Task to DB
-router.post("/task", async (req, res) => {
-  const task = new Tasks(req.body);
-
+router.post("/task", auth, async (req, res) => {
+  // const task = new Tasks(req.body);
+  const task = new Tasks({
+    ...req.body,
+    user_id: req.user._id,
+  });
   try {
     await task.save();
     res.status(201).send(task);
@@ -15,9 +19,11 @@ router.post("/task", async (req, res) => {
 });
 
 //Endpoint 2 - get all tasks from DB
-router.get("/task", async (req, res) => {
+router.get("/task", auth, async (req, res) => {
   try {
-    const task = await Tasks.find();
+    console.log(req.user._id);
+    const task = await Tasks.find({ user_id: req.user._id });
+    console.log(req.user._id);
     res.send(task);
   } catch (e) {
     res.status(500).send(e);
@@ -25,11 +31,13 @@ router.get("/task", async (req, res) => {
 });
 
 //Endpoint 3 - to get Task from DB by id
-router.get("/task/:id", async (req, res) => {
+router.get("/task/:id", auth, async (req, res) => {
   const _id = req.params.id;
 
   try {
-    const task = await Tasks.findById(_id);
+    //const task = await Tasks.findById(_id);
+
+    const task = await Tasks.findOne({ _id, user_id: req.user._id });
     if (!task) {
       res.status(404).send();
     }
@@ -40,7 +48,7 @@ router.get("/task/:id", async (req, res) => {
 });
 
 //Endpoint 4 - to update Task by id
-router.patch("/task/:id", async (req, res) => {
+router.patch("/task/:id", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["description", "completed"];
   const isValidOp = updates.every((update) => {
@@ -52,13 +60,13 @@ router.patch("/task/:id", async (req, res) => {
   }
 
   try {
-    const task = await Tasks.findById(req.params.id);
+    // const task = await Tasks.findById(req.params.id);
 
-    updates.forEach((update) => {
-      task[update] = req.body[update];
+    const task = await Tasks.findOne({
+      _id: req.params.id,
+      user_id: req.user._id,
     });
 
-    await task.save();
     // const task = await Tasks.findByIdAndUpdate(req.params.id, req.body, {
     //   new: true,
     //   runValidators: true,
@@ -67,6 +75,11 @@ router.patch("/task/:id", async (req, res) => {
     if (!task) {
       return res.status(404).send();
     }
+    updates.forEach((update) => {
+      task[update] = req.body[update];
+    });
+
+    await task.save();
 
     res.send(task);
   } catch (e) {
@@ -75,9 +88,12 @@ router.patch("/task/:id", async (req, res) => {
 });
 
 //Endpoint 3 - to delete Task from DB by id
-router.delete("/task/:id", async (req, res) => {
+router.delete("/task/:id", auth, async (req, res) => {
   try {
-    const task = await Tasks.findByIdAndDelete(req.params.id);
+    const task = await Tasks.findByIdAndDelete({
+      _id: req.params.id,
+      user_id: req.user._id,
+    });
 
     if (!task) {
       return res.status(404).send();
