@@ -20,11 +20,24 @@ router.post("/task", auth, async (req, res) => {
 
 //Endpoint 2 - get all tasks from DB
 router.get("/task", auth, async (req, res) => {
+  const match = {};
+
+  if (req.query.completed) {
+    match.completed = req.query.completed === "true";
+  }
+
   try {
-    console.log(req.user._id);
-    const task = await Tasks.find({ user_id: req.user._id });
-    console.log(req.user._id);
-    res.send(task);
+    //const task = await Tasks.find({ completed: req.query.completed });
+    console.log(req.user, match);
+    await req.user
+      .populate({
+        path: "tasks",
+        match,
+      })
+      .execPopulate();
+    console.log("after populate");
+    res.send(req.user.tasks);
+    //res.send(task);
   } catch (e) {
     res.status(500).send(e);
   }
