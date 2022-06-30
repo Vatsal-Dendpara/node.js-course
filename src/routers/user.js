@@ -1,6 +1,7 @@
 const express = require("express");
 const { default: mongoose } = require("mongoose");
 const User = require("../models/user");
+const auth = require("../middleware/auth");
 const router = new express.Router();
 
 //Endpoint 1- to add users to DB
@@ -8,21 +9,24 @@ router.post("/users", async (req, res) => {
   const user = new User(req.body);
 
   try {
+    const token = await user.generateAuthToken();
     await user.save();
-    res.status(201).send(user);
+    res.status(201).send({ user, token });
   } catch (e) {
     res.status(400).send(e);
   }
 });
 
 //Endpoint 2 - to get All Users
-router.get("/users", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.status(200).send(users);
-  } catch (e) {
-    res.status(500).send(e);
-  }
+router.get("/users/me", auth, async (req, res) => {
+  // try {
+  //   const users = await User.find({});
+  //   res.status(200).send(users);
+  // } catch (e) {
+  //   res.status(500).send(e);
+  // }
+
+  res.send(req.user);
 });
 
 //Endpoint 3 - to get user by its id.
@@ -98,7 +102,8 @@ router.post("/users/login", async (req, res) => {
       req.body.email,
       req.body.password
     );
-    res.send(user);
+    const token = await user.generateAuthToken();
+    res.send({ user, token });
   } catch (e) {
     res.status(400).send(e);
   }
