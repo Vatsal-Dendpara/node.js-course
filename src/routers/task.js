@@ -21,21 +21,27 @@ router.post("/task", auth, async (req, res) => {
 //Endpoint 2 - get all tasks from DB
 router.get("/task", auth, async (req, res) => {
   const match = {};
+  const sort = {};
 
   if (req.query.completed) {
     match.completed = req.query.completed === "true";
   }
 
+  if (req.query.sortBy) {
+    const str = req.query.sortBy.split(":");
+    sort[str[0]] = str[1] === "desc" ? -1 : 1;
+  }
   try {
     //const task = await Tasks.find({ completed: req.query.completed });
-    console.log(req.user, match);
-    await req.user
-      .populate({
-        path: "tasks",
-        match,
-      })
-      .execPopulate();
-    console.log("after populate");
+    await req.user.populate({
+      path: "tasks",
+      match: match,
+      options: {
+        limit: parseInt(req.query.limit),
+        skip: parseInt(req.query.skip),
+        sort,
+      },
+    });
     res.send(req.user.tasks);
     //res.send(task);
   } catch (e) {
