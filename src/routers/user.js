@@ -3,7 +3,8 @@ const { default: mongoose } = require("mongoose");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
 const router = new express.Router();
-
+const multer = require("multer");
+const sharp = require("sharp");
 //Endpoint 1- to add users to DB
 router.post("/users", async (req, res) => {
   const user = new User(req.body);
@@ -135,6 +136,62 @@ router.post("/users/logoutAll", auth, async (req, res) => {
     res.send();
   } catch (e) {
     res.send(500).send();
+  }
+});
+
+const upload = multer({
+  limits: {
+    fileSize: 1000000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/gm)) {
+      return cb(new Error("please upload image file"));
+    }
+
+    cb(undefined, true);
+  },
+});
+
+//endpoint 9: for saving user avatar in DB
+router.post(
+  "/users/me/avatar",
+  auth,
+  upload.single("avatar"),
+  async (req, res) => {
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 250, height: 250 })
+      .png()
+      .toBuffer();
+    req.user.avatar = buffer;
+    await req.user.save();
+    res.send();
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+  }
+);
+
+//endpoint 10: delete user avatar from DB
+
+router.delete("/users/me/avatar", auth, async (req, res) => {
+  req.user.avatar = undefined;
+  await req.user.save();
+  res.send();
+});
+
+//endpoint 11: to get user avatar from DB
+
+router.get("/users/:id/avatar", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user || !user.avatar) {
+      throw new Error();
+    }
+    res.set("Content-Type", "image/png");
+    res.send(user.avatar);
+  } catch (e) {
+    res.status(404).send();
   }
 });
 module.exports = router;
