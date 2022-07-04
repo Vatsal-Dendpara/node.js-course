@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema(
       minlength: 7,
       validate(value) {
         if (value.toLowerCase().includes("password")) {
-          throw new Error('Password cannot be same as "password"');
+          throw new Error('Password cannot be same as "password"!!');
         }
       },
     },
