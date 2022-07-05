@@ -3,7 +3,6 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Tasks = require("../models/tasks");
-mongoose.connect("mongodb://127.0.0.1:27017/task-manager-api");
 
 const userSchema = new mongoose.Schema(
   {
