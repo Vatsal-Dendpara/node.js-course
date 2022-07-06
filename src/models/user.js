@@ -121,6 +121,7 @@ userSchema.pre("remove", async function (next) {
   const user = this;
 
   await Tasks.deleteMany({ user_id: user._id });
+  next();
 });
 //User Model
 const User = mongoose.model("User", userSchema);

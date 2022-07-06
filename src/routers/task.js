@@ -109,11 +109,12 @@ router.patch("/task/:id", auth, async (req, res) => {
 //Endpoint 3 - to delete Task from DB by id
 router.delete("/task/:id", auth, async (req, res) => {
   try {
+    console.log(req.params.id, req.user._id);
     const task = await Tasks.findByIdAndDelete({
       _id: req.params.id,
       user_id: req.user._id,
     });
-
+    console.log(task);
     if (!task) {
       return res.status(404).send();
     }

@@ -13,9 +13,7 @@ const sendWelcomeEmail = (email, name) => {
     text: `Welcome to the app, ${name}`,
   };
   try {
-    mg.messages().send(data, function (error, body) {
-      console.log(body);
-    });
+    mg.messages().send(data, function (error, body) {});
   } catch (e) {
     console.log(e);
   }
@@ -29,9 +27,7 @@ const sendCancelEmail = (email, name) => {
     text: `Dear ${name}, you have been unsubscribed from newsletter`,
   };
   try {
-    mg.messages().send(data, function (error, body) {
-      console.log(body);
-    });
+    mg.messages().send(data, function (error, body) {});
   } catch (e) {
     console.log(e);
   }
