@@ -1,12 +1,18 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-
-//Authentication Middleware for user
 const auth = async (req, res, next) => {
   try {
     const token = req.header("Authorization").replace("Bearer ", "");
     const decode = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ _id: decode._id, "tokens.token": token });
+    const cstDateTime = new Date().toLocaleString("en-US", {
+      timeZone: "America/Chicago",
+    });
+
+    const user = await User.findOne({
+      _id: decode._id,
+      "tokens.token": token,
+    });
+
     if (!user) {
       throw new Error();
     }

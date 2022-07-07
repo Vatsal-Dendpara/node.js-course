@@ -1,12 +1,12 @@
 const express = require("express");
 require("./db/mongoose");
 const app = express();
+const inventoryRouter = require("./routers/inventoryRouter");
 const userRouter = require("./routers/user");
-const taskRouter = require("./routers/task");
-const port = process.env.PORT;
 
 app.use(express.json());
+
+app.use(inventoryRouter);
 app.use(userRouter);
-app.use(taskRouter);
 
 module.exports = app;

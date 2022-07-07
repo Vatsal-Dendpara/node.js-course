@@ -2,8 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Tasks = require("../models/tasks");
-
+const Inventory = require("./inventoryModel");
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -20,15 +19,6 @@ const userSchema = new mongoose.Schema(
       validate(value) {
         if (!validator.isEmail(value)) {
           throw new Error("Email is invalid");
-        }
-      },
-    },
-    age: {
-      type: Number,
-      default: 0,
-      validate(value) {
-        if (value < 0) {
-          throw new Error("Age must be positive number");
         }
       },
     },
@@ -51,23 +41,35 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-    avatar: {
-      type: Buffer,
-    },
   },
   {
     timestamps: true,
   }
 );
 
-//virtual schema for users task
-userSchema.virtual("tasks", {
-  ref: "Tasks",
+userSchema.virtual("inventoryModel", {
+  ref: "Inventory",
   localField: "_id",
   foreignField: "user_id",
 });
 
-//hide important details from user
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+  return token;
+};
+
+userSchema.pre("save", async function (next) {
+  const user = this;
+
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+
+  next();
+});
 
 userSchema.methods.toJSON = function () {
   const user = this;
@@ -78,16 +80,6 @@ userSchema.methods.toJSON = function () {
 
   return userObj;
 };
-//generate token for user
-userSchema.methods.generateAuthToken = async function () {
-  const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
-  user.tokens = user.tokens.concat({ token });
-  await user.save();
-  return token;
-};
-
-//check credentials of user
 
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
@@ -104,26 +96,13 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
   return user;
 };
-//middleware for saving user and encrypt password and store in DB
-userSchema.pre("save", async function (next) {
-  const user = this;
-
-  if (user.isModified("password")) {
-    user.password = await bcrypt.hash(user.password, 8);
-  }
-
-  next();
-});
-
-//middleware for when a user delete then automatically remove all his tasks.
 
 userSchema.pre("remove", async function (next) {
   const user = this;
 
-  await Tasks.deleteMany({ user_id: user._id });
+  await Inventory.deleteMany({ user_id: user._id });
   next();
 });
-//User Model
-const User = mongoose.model("User", userSchema);
 
+const User = mongoose.model("User", userSchema);
 module.exports = User;
