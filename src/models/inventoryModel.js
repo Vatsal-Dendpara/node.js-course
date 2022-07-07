@@ -28,12 +28,21 @@ const inventorySchema = new mongoose.Schema(
       type: Date,
     },
     inventoryImage: {
-      type: Buffer,
+      type: String,
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
+    },
+    isDeleted: {
+      type: Number,
+      default: 0,
+      validate(value) {
+        if (value < 0 || value > 1) {
+          throw new Error("value must be between 0 and 1");
+        }
+      },
     },
   },
   {
@@ -56,5 +65,13 @@ const inventorySchema = new mongoose.Schema(
 //   next();
 // });
 
+inventorySchema.methods.toJSON = function () {
+  const inv = this;
+  const invObj = inv.toObject();
+
+  console.log(new Date(invObj.expiryTime));
+
+  return invObj;
+};
 const Inventory = mongoose.model("Inventory", inventorySchema);
 module.exports = Inventory;
