@@ -67,11 +67,33 @@ const inventorySchema = new mongoose.Schema(
 
 inventorySchema.methods.toJSON = function () {
   const inv = this;
-  const invObj = inv.toObject();
+  let invObj = inv.toObject();
+  const obj2 = { is_expired: true };
+  const currentTime = new Date();
+  const expiryTime = new Date(invObj.expiryTime);
 
-  console.log(new Date(invObj.expiryTime));
+  if (expiryTime < currentTime) {
+    Object.assign(invObj, obj2);
+  }
 
   return invObj;
+};
+
+inventorySchema.methods.getValueByTimeZone = function (timeZone) {
+  const inv = this;
+
+  inv.expiryTime = new Date(inv.expiryTime).toLocaleString("en-US", {
+    timeZone,
+  });
+
+  inv.manufacturingTime = new Date(inv.manufacturingTime).toLocaleString(
+    "en-US",
+    {
+      timeZone,
+    }
+  );
+
+  return inv;
 };
 const Inventory = mongoose.model("Inventory", inventorySchema);
 module.exports = Inventory;

@@ -1,7 +1,9 @@
 const express = require("express");
 const Inventory = require("../models/inventoryModel");
 const router = new express.Router();
+const timeZoneValidator = require("timezone-validator");
 const auth = require("../middleware/auth");
+
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -87,23 +89,32 @@ router.get("/inventory/:id", auth, async (req, res) => {
 
 //endpoint 4: to get all inventory data
 router.get("/inventory", auth, async (req, res) => {
-  const match = {};
+  const match = { isDeleted: 0 };
   if (req.query.inventoryName) {
     match.inventoryName = req.query.inventoryName;
   }
   if (req.query.inventoryCategory) {
     match.inventoryCategory = req.query.inventoryCategory;
   }
+
   try {
     await req.user.populate({
       path: "inventoryModel",
       match: match,
     });
 
-    const data = req.user.inventoryModel.filter((data) => {
-      return data.isDeleted == 0;
-    });
-    res.send(data);
+    let inventories = req.user.inventoryModel;
+
+    if (req.query.timeZone) {
+      if (timeZoneValidator(req.query.timeZone) == true) {
+        inventories = req.user.inventoryModel.map((inv) => {
+          return inv.getValueByTimeZone(req.query.timeZone);
+        });
+      } else {
+        return res.status(404).send({ error: "invalid timezone" });
+      }
+    }
+    res.send(inventories);
   } catch (e) {
     res.status(500).send(e);
   }
