@@ -1,12 +1,14 @@
-const genMessages = (text) => {
+const genMessages = (username, text) => {
   return {
+    username,
     text,
     createdAt: new Date().getTime(),
   };
 };
 
-const genLocationMessage = (text) => {
+const genLocationMessage = (username, text) => {
   return {
+    username,
     text,
     createdAt: new Date().getTime(),
   };
