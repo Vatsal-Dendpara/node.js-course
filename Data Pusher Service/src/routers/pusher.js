@@ -7,9 +7,10 @@ router.post("/push", auth, async (req, res) => {
   try {
     const data = {
       id: req.user.id,
-      message: req.body.message,
+      messages: req.body.messages,
       number: Math.floor(Math.random() * 60) + 1,
       requestCounter: req.user.requestCounter,
+      token: req.token,
     };
     await publisher(data);
     res.send(req.user);

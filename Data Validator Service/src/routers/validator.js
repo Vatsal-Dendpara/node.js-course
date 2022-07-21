@@ -1,10 +1,9 @@
 const amqp = require("amqplib");
-const { count } = require("console");
-const express = require("express");
+const axios = require("axios").default;
 require("../db/mongoose");
 const User = require("../models/tracker");
-const router = new express.Router();
 
+//consume data of rabbitMQ queue
 const validator = async () => {
   try {
     const conn = await amqp.connect("amqp://localhost:5672");
@@ -12,6 +11,7 @@ const validator = async () => {
     await channle.assertQueue("validator");
     await channle.consume("validator", async (message) => {
       const result = JSON.parse(message.content.toString());
+      //validate data according to logic given in sheet
       validate(result);
     });
   } catch (e) {
@@ -19,6 +19,8 @@ const validator = async () => {
   }
 };
 validator();
+
+//to validate data
 const validate = async (data) => {
   if (data.number % 10 == 0) {
     data.number = Math.floor(Math.random() * 60) + 1;
@@ -26,34 +28,63 @@ const validate = async (data) => {
     setTimeout(() => {
       if (data.number % 10 == 0) {
         data.category = "Failed";
-        console.log("if " + data.number);
+
+        //insert data in mongo
         insertData(data);
       }
     }, 4000);
   } else {
     data.category = "direct";
     console.log("else " + data.number);
+    //insert data in mongo
     insertData(data);
   }
 };
 
+//to insert data in mongo
 const insertData = async (data) => {
-  const user = {
-    userMessage: data.message,
-    userID: data.id,
-    requestCount: parseInt(data.requestCounter),
-    category: data.category,
-  };
+  let user;
 
+  user = data.messages.map((msg) => {
+    return {
+      userMessage: msg.message,
+      userID: data.id,
+      requestCount: parseInt(data.requestCounter),
+      category: data.category,
+    };
+  });
   try {
-    const result = new User(user);
-    await result.save();
-    if (!result) {
+    const insert = await User.insertMany(user);
+    if (!insert) {
       throw new Error();
     }
-    console.log("Success");
+    console.log("success!");
+
+    //to fetch data of user where category is direct
+    await fetchData(data.token);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+//to fetch data from mongodb
+const fetchData = async (token) => {
+  try {
+    axios
+      .get("http://localhost:3003/data?category=direct", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   } catch (e) {
-    console.log("error!", e);
+    console.log(e);
   }
 };
 

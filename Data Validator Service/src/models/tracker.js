@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
+//mongoose schema
 const userSchema = new mongoose.Schema(
   {
     userMessage: {
@@ -23,14 +24,6 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-// userSchema.pre("save", async function (next) {
-//   const user = this;
-//   const msg = {
-//     message: user.userMessage,
-//   };
-//   user.userMessage = user.userMessage.concat({ msg });
-//   next();
-// });
 
 const User = mongoose.model("User", userSchema);
 
