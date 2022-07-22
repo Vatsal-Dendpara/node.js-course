@@ -1,0 +1,103 @@
+{
+  "openapi": "3.0.0",
+  "x-stoplight": {
+    "id": "9dbkojenfwapi"
+  },
+  "info": {
+    "title": "Data Tracker Service",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "summary": "Create New User",
+        "operationId": "post-user",
+        "description": "This endpoint is used to store data of user in redis, it accepts two parameter username and password.\nUsername should be between 5 to 15 characters long and only alphanumeric is allowed,\nPassword should be between 6 to 12 characters long",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {}
+            }
+          },
+          "description": "{\n  \"username\":\"vatsal112\",\n  \"password\":\"vatsal123\"\n}"
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "if username is already exists & username and password does not satisfy following condition then this status code will be shown."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "parameters": []
+    },
+    "/user/login": {
+      "post": {
+        "summary": "",
+        "operationId": "post-user-login",
+        "responses": {
+          "200": {
+            "description": "If credentials are matched then return response with user data and 200 status code will be shown."
+          },
+          "400": {
+            "description": "if username and password does not match in redis then this status code will be shown to user with error message."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "This endpoint is used when user is trying to login. It will check username and password with redis. if matched then user is authorized user else user is not authorized user.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              },
+              "examples": {}
+            }
+          },
+          "description": "{\n  \"username\":\"vatsal112\",\n  \"password\":\"vatsal123\"\n}"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "title": "User",
+        "type": "object",
+        "description": "redis schema",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier for the given user."
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    }
+  }
+}

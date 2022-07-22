@@ -1,0 +1,143 @@
+{
+  "openapi": "3.0.0",
+  "x-stoplight": {
+    "id": "7w567plwqhtg5"
+  },
+  "info": {
+    "title": "Data Tracer Service",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3003"
+    }
+  ],
+  "paths": {
+    "/data": {
+      "get": {
+        "summary": "Your GET endpoint",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "if user is authorized then user can show all the data from database with 200 status code.\nif user proivdes search params then according to that data will be shown and if data is not found then empty array will be the response."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "operationId": "get-data",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "category",
+            "description": "category of user message"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "message",
+            "description": "whole message or word to find from all messages"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Authorization",
+            "description": "User needs to pass jwt token for authorization."
+          }
+        ],
+        "description": "This endpoint is used to get data of user currently logged in. user can pass other query parameters to search data like category, message etc."
+      }
+    },
+    "/data/filter": {
+      "get": {
+        "summary": "Your GET endpoint",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "{\n  \"results\": number of data\n}"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "operationId": "get-data-filter",
+        "description": "This endpoint is used to find data by date and category, In response user will get total number of count of data.\n\nQUERY PARAMETER IS MUST TO FIND DATA.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Authorization",
+            "description": "user needs to pass jwt token for authorization"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "date",
+            "description": "date of the message which user needs to retrive, accepted format is yyyy-mm-dd"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "category",
+            "description": "category of the message."
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "title": "User",
+        "type": "object",
+        "description": "",
+        "properties": {
+          "_id": {
+            "type": "object",
+            "description": "Unique identifier for the given user."
+          },
+          "userMessage": {
+            "type": "string"
+          },
+          "userID": {
+            "type": "string"
+          },
+          "requestCount": {
+            "type": "integer",
+            "format": "email"
+          },
+          "category": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date",
+            "description": "The date that the user was created."
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userMessage",
+          "userID",
+          "requestCount",
+          "category"
+        ]
+      }
+    }
+  }
+}

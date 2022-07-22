@@ -1,6 +1,7 @@
 const amqp = require("amqplib");
 const axios = require("axios").default;
 require("../db/mongoose");
+// jest.useFakeTimers();
 const User = require("../models/tracker");
 
 //consume data of rabbitMQ queue
@@ -19,7 +20,6 @@ const validator = async () => {
   }
 };
 validator();
-
 //to validate data
 const validate = async (data) => {
   if (data.number % 10 == 0) {
@@ -35,7 +35,7 @@ const validate = async (data) => {
     }, 4000);
   } else {
     data.category = "direct";
-    console.log("else " + data.number);
+    //console.log("else " + data.number);
     //insert data in mongo
     insertData(data);
   }
@@ -58,7 +58,7 @@ const insertData = async (data) => {
     if (!insert) {
       throw new Error();
     }
-    console.log("success!");
+    // console.log("success!");
 
     //to fetch data of user where category is direct
     await fetchData(data.token);
@@ -78,7 +78,8 @@ const fetchData = async (token) => {
         },
       })
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
+        return res.data;
       })
       .catch((e) => {
         console.log(e);
@@ -90,4 +91,5 @@ const fetchData = async (token) => {
 
 module.exports = {
   validator,
+  validate,
 };

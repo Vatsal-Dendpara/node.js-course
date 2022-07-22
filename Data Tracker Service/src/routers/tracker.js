@@ -38,10 +38,8 @@ router.get("/data/filter", auth, async (req, res) => {
       }
       res.send({ results: Object.keys(result).length });
     }
-    if (req.query.category) {
-    }
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).send(error);
   }
 });
 module.exports = router;

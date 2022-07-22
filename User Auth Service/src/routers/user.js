@@ -2,7 +2,6 @@ const express = require("express");
 const router = new express.Router();
 const jwt = require("jsonwebtoken");
 const { saveUser, login } = require("../models/user");
-const auth = require("../middleware/auth");
 
 //endpoint-1: Signup user
 router.post("/users", async (req, res) => {
@@ -43,7 +42,7 @@ router.post("/user/login", async (req, res) => {
     }
 
     if (user.password != req.body.password) {
-      return res.status(404).send({
+      return res.status(400).send({
         error: "invalid password",
       });
     }

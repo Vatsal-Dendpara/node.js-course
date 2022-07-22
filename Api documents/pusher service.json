@@ -1,0 +1,58 @@
+{
+  "openapi": "3.0.0",
+  "x-stoplight": {
+    "id": "p8mw4ggq1wxrm"
+  },
+  "info": {
+    "title": "Data Pusher Service",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001"
+    }
+  ],
+  "paths": {
+    "/push": {
+      "post": {
+        "summary": "",
+        "operationId": "post-push",
+        "responses": {
+          "200": {
+            "description": "if given data is inserted in mongodb then this status code will be shown with user data."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "This service is used to push user message either in bulk or single in mongodb database.\nFirst user need to authorize himself after that user can push messages.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "Authorization",
+            "description": "user needs to pass jwt token for user verification."
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          },
+          "description": "{\n  \"messages\":[\n    {\n      \"message\":\"user message\"\n    }\n  ]\n}\n\nOR \n\n{\n  \"messages\":[\n    {\n      \"message\":\"user message\"\n    },\n    {\n      \"message\":\"user message 2\"\n    }\n  ]\n}\n"
+        },
+        "x-internal": false
+      },
+      "parameters": []
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}
